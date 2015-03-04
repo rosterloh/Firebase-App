@@ -1,33 +1,42 @@
 <!DOCTYPE html>
-
 <html lang="en" ng-app="myApp" class="no-js">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>My AngularJS App</title>
+  <title>Firebase App</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="bower_components/html5-boilerplate/css/normalize.css">
-  <link rel="stylesheet" href="bower_components/html5-boilerplate/css/main.css">
-  <link rel="stylesheet" href="app.css">
-  <link rel="stylesheet" href="blog.css">
-  <script src="bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
+
+  <!-- build:css(.tmp) styles/main.min.css -->
+  <link rel="stylesheet" type="text/css" href="vendor/angular-material/angular-material.css">
+  <link rel="stylesheet" type="text/css" href="styles/app.css">
+  <link rel="stylesheet" type="text/css" href="styles/blog.css">
+  <!-- endbuild -->
+
 </head>
 <body>
   <div ng-view></div>
 
-  <script src="bower_components/angular/angular.js"></script>
-  <script src="http://code.angularjs.org/1.2.6/angular.js"></script>
-  <script src="bower_components/angular-route/angular-route.js"></script>
-<script src="https://cdn.firebase.com/js/client/2.0.4/firebase.js"></script>
-<script src="https://cdn.firebase.com/libs/angularfire/0.9.0/angularfire.min.js"></script>
-  <script src="app.js"></script>
-  <script src="home/home.js"></script>
-  <script src="register/register.js"></script>
-  <script src="welcome/welcome.js"></script>
-  <script src="addPost/addPost.js"></script>
-  <script src="components/version/version.js"></script>
-  <script src="components/version/version-directive.js"></script>
-  <script src="components/version/interpolate-filter.js"></script>
+  <!-- build:js assets/js/vendor.js -->
+  <script src="vendor/angular/angular.js"></script>
+  <script src="vendor/angular-route/angular-route.js"></script>
+  <script src="vendor/angular-resource/angular-resource.js"></script>
+  <script src="vendor/angular-animate/angular-animate.js"></script>
+  <script src="vendor/angular-aria/angular-aria.js"></script>
+  <script src="vendor/angular-material/angular-material.js"></script>
+  <script src="vendor/firebase/firebase.js"></script>
+  <script src="vendor/angularfire/dist/angularfire.js"></script>
+  <!-- endbuild -->
+
+  <!-- build:js assets/js/main.js -->
+  <script src="app/app.js"></script>
+  <script src="app/home/home.js"></script>
+  <script src="app/register/register.js"></script>
+  <script src="app/welcome/welcome.js"></script>
+  <script src="app/addPost/addPost.js"></script>
+  <script src="app/components/version/version.js"></script>
+  <script src="app/components/version/version-directive.js"></script>
+  <script src="app/components/version/interpolate-filter.js"></script>
+  <!-- endbuild -->
 </body>
 </html>

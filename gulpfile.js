@@ -2,7 +2,6 @@
 
 var pkg            = require('./package.json');
 var del            = require('del');
-var path           = require('path');
 var gulp           = require('gulp');
 var moment         = require('moment');
 var semver         = require('semver');
@@ -13,7 +12,7 @@ var $ = require('gulp-load-plugins')();
 
 var PRODUCTION_URL       = 'http://firebase-app.herokuapp.com';
 var DEVELOPMENT_URL      = 'http://127.0.0.1:3000';
-var PRODUCTION_CDN_URL   = 'http://martinmicunda.github.io/employee-scheduling-ui/dist/';
+var PRODUCTION_CDN_URL   = 'http://rosterloh.github.io/Firebase-App/dist/';
 
 var log                  = $.util.log;
 var argv                 = $.util.env;
@@ -33,7 +32,7 @@ if(!BROWSERS.match(new RegExp(/PhantomJS|Chrome|Firefox|Safari/))) {
     return process.exit(1);
 }
 
-log(COLORS.blue('********** RUNNING IN ' + ENV + ' ENVIROMENT **********'));
+log(COLORS.blue('********** RUNNING IN ' + ENV + ' ENVIRONMENT **********'));
 
 function startBrowserSync(baseDir, files, browser) {
     browser = browser === undefined ? 'default' : browser;
@@ -41,7 +40,7 @@ function startBrowserSync(baseDir, files, browser) {
 
     browserSync({
         files: files,
-        port: 8000,
+        port: 3000,
         notify: false,
         server: {
             baseDir: baseDir
@@ -54,8 +53,8 @@ var paths = {
     gulpfile:   'gulpfile.js',
     app: {
         basePath:       'src/',
-        fonts:          ['src/fonts/**/*.{eot,svg,ttf,woff}', 'vendor/**/*.{eot,svg,ttf,woff}'],
-        styles:         'src/styles/**/*.scss',
+        fonts:          ['src/fonts/**/*.{eot,svg,ttf,woff}', 'src/vendor/**/*.{eot,svg,ttf,woff}'],
+        styles:         'src/styles/**/*.css',
         images:         'src/images/**/*.{png,gif,jpg,jpeg}',
         config: {
             dev:        'src/app/core/config/core.config.dev.js',
@@ -102,11 +101,25 @@ gulp.task('clean', 'Delete \'build\' and \'.tmp\' directories', function (cb) {
     return del(files, cb);
 });
 
+gulp.task('jshint', 'Hint JavaScripts files', function () {
+    return gulp.src(paths.app.scripts.concat(paths.gulpfile))
+        .pipe($.jshint('.jshintrc'))
+        .pipe($.jshint.reporter('jshint-stylish'))
+        .pipe($.jshint.reporter('fail'));
+});
+
+gulp.task('htmlhint', 'Hint HTML files', function () {
+    return gulp.src([paths.app.html, paths.app.templates])
+        .pipe($.htmlhint('.htmlhintrc'))
+        .pipe($.htmlhint.reporter())
+        .pipe($.htmlhint.failReporter());
+});
+
 gulp.task('watch', 'Watch files for changes', function () {
     gulp.watch([paths.app.images, paths.app.fonts], [browserSync.reload]);
     //gulp.watch(paths.app.styles, ['sass']);
-    gulp.watch([paths.app.scripts, paths.gulpfile], [/*'jshint', */browserSync.reload]);
-    gulp.watch([paths.app.html, paths.app.templates], [/*'htmlhint', */browserSync.reload]);
+    gulp.watch([paths.app.scripts, paths.gulpfile], ['jshint', browserSync.reload]);
+    gulp.watch([paths.app.html, paths.app.templates], ['htmlhint', browserSync.reload]);
 });
 
 gulp.task('extras', 'Copy project files that haven\'t been copied by \'compile\' task e.g. (favicon, etc.) into the \'build/dist\' directory', function () {
@@ -132,7 +145,7 @@ gulp.task('images', 'Minifies and copies images to `build/dist` directory', func
         .pipe($.size({title: 'images'}));
 });
 
-gulp.task('compile', 'Compiles all JS, CSS and HTML files', [/*'htmlhint', 'sass', */'bundle'], function () {
+gulp.task('compile', 'Compiles all JS, CSS and HTML files', ['htmlhint', 'bundle'], function () {
     var projectHeader = $.header(banner);
 
     return gulp.src(paths.app.html)
@@ -163,7 +176,7 @@ gulp.task('compile', 'Compiles all JS, CSS and HTML files', [/*'htmlhint', 'sass
         .pipe($.size({title: 'compile', showFiles: true}));
 });
 
-gulp.task('serve', 'Serve for the dev environment', [/*'sass', */'watch'], function() {
+gulp.task('serve', 'Serve for the dev environment', ['watch'], function() {
     startBrowserSync(['.tmp', 'src', 'jspm_packages', './' ]);
 });
 
@@ -186,7 +199,7 @@ gulp.task('build', 'Build application for deployment', function (cb) {
     }
 });
 
-gulp.task('bump', 'Bump version number in package.json', [/*'jshint', 'htmlhint', 'test:unit'*/], function () {
+gulp.task('bump', 'Bump version number in package.json', ['jshint', 'htmlhint'], function () {
     var HAS_REQUIRED_ATTRIBUTE = !!argv.type ? !!argv.type.match(new RegExp(/major|minor|patch/)) : false;
 
     if (!HAS_REQUIRED_ATTRIBUTE) {
