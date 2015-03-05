@@ -10,17 +10,11 @@ var browserSync    = require('browser-sync');
 
 var $ = require('gulp-load-plugins')();
 
-var PRODUCTION_URL       = 'http://firebase-app.herokuapp.com';
-var DEVELOPMENT_URL      = 'http://127.0.0.1:3000';
-var PRODUCTION_CDN_URL   = 'http://rosterloh.github.io/Firebase-App/dist/';
-
 var log                  = $.util.log;
 var argv                 = $.util.env;
 var ENV                  = !!argv.env ? argv.env : 'dev';
 var COLORS               = $.util.colors;
 var BROWSERS             = !!argv.browsers ? argv.browsers : 'PhantomJS';
-var CDN_BASE             = !!argv.cdn ? PRODUCTION_CDN_URL : DEVELOPMENT_URL;
-var APPLICATION_BASE_URL = ENV ? PRODUCTION_URL : DEVELOPMENT_URL;
 
 if(!ENV.match(new RegExp(/prod|dev|test/))) {
     log(COLORS.red('Error: The argument \'env\' has incorrect value \'' + ENV +'\'! Usage: gulp test:e2e --env=(prod|dev|test)'));
@@ -94,40 +88,40 @@ var banner = $.util.template(
     ' * @license <%= pkg.license.type %>, <%= pkg.license.url %>\n' +
     ' */\n', {file: '', pkg: pkg, today: moment(new Date()).format('D/MM/YYYY'), year: new Date().toISOString().substr(0, 4)});
 
-gulp.task('clean', 'Delete \'build\' and \'.tmp\' directories', function (cb) {
+gulp.task('clean', function (cb) {
     var files = [].concat(paths.build.basePath, paths.tmp.basePath);
     log('Cleaning: ' + COLORS.blue(files));
 
     return del(files, cb);
 });
 
-gulp.task('jshint', 'Hint JavaScripts files', function () {
+gulp.task('jshint', function () {
     return gulp.src(paths.app.scripts.concat(paths.gulpfile))
         .pipe($.jshint('.jshintrc'))
         .pipe($.jshint.reporter('jshint-stylish'))
         .pipe($.jshint.reporter('fail'));
 });
 
-gulp.task('htmlhint', 'Hint HTML files', function () {
+gulp.task('htmlhint', function () {
     return gulp.src([paths.app.html, paths.app.templates])
         .pipe($.htmlhint('.htmlhintrc'))
         .pipe($.htmlhint.reporter())
         .pipe($.htmlhint.failReporter());
 });
 
-gulp.task('watch', 'Watch files for changes', function () {
+gulp.task('watch', function () {
     gulp.watch([paths.app.images, paths.app.fonts], [browserSync.reload]);
     //gulp.watch(paths.app.styles, ['sass']);
     gulp.watch([paths.app.scripts, paths.gulpfile], ['jshint', browserSync.reload]);
     gulp.watch([paths.app.html, paths.app.templates], ['htmlhint', browserSync.reload]);
 });
 
-gulp.task('extras', 'Copy project files that haven\'t been copied by \'compile\' task e.g. (favicon, etc.) into the \'build/dist\' directory', function () {
+gulp.task('extras', function () {
     return gulp.src([paths.app.basePath + '*.{ico,png,txt}'])
         .pipe(gulp.dest(paths.build.dist.basePath));
 });
 
-gulp.task('fonts', 'Copy fonts to `build/dist` directory', function () {
+gulp.task('fonts', function () {
     return gulp.src(paths.app.fonts)
         .pipe($.filter('**/*.{eot,svg,ttf,woff}'))
         .pipe($.flatten())
@@ -135,7 +129,7 @@ gulp.task('fonts', 'Copy fonts to `build/dist` directory', function () {
         .pipe($.size({title: 'fonts'}));
 });
 
-gulp.task('images', 'Minifies and copies images to `build/dist` directory', function () {
+gulp.task('images', function () {
     return gulp.src(paths.app.images)
         .pipe($.cache($.imagemin({
             progressive: true,
@@ -145,7 +139,7 @@ gulp.task('images', 'Minifies and copies images to `build/dist` directory', func
         .pipe($.size({title: 'images'}));
 });
 
-gulp.task('compile', 'Compiles all JS, CSS and HTML files', ['htmlhint', 'bundle'], function () {
+gulp.task('compile', ['htmlhint'], function () {
     var projectHeader = $.header(banner);
 
     return gulp.src(paths.app.html)
@@ -155,20 +149,17 @@ gulp.task('compile', 'Compiles all JS, CSS and HTML files', ['htmlhint', 'bundle
         }))
         .pipe($.usemin({
             css:        [
-                $.if(!!argv.cdn, $.cdnizer({defaultCDNBase: CDN_BASE, relativeRoot: 'styles', files: ['**/*.{gif,png,jpg,jpeg}']})),
                 $.minifyCss({keepSpecialComments:0}),
                 $.rev(),
                 projectHeader
             ],
             js:         [
-                $.if(!!argv.cdn, $.cdnizer({defaultCDNBase: CDN_BASE, relativeRoot: '/', files: ['**/*.{gif,png,jpg,jpeg}']})),
                 $.ngAnnotate({add: true, single_quotes: true, stats: true}),
                 $.uglify(),
                 $.rev(),
                 projectHeader
             ],
             html:       [
-                $.if(!!argv.cdn, $.cdnizer({defaultCDNBase: CDN_BASE, files: ['**/*.{js,css}']})),
                 $.minifyHtml({empty:true}),
             ]
         }))
@@ -176,30 +167,25 @@ gulp.task('compile', 'Compiles all JS, CSS and HTML files', ['htmlhint', 'bundle
         .pipe($.size({title: 'compile', showFiles: true}));
 });
 
-gulp.task('serve', 'Serve for the dev environment', ['watch'], function() {
-    startBrowserSync(['.tmp', 'src', 'jspm_packages', './' ]);
+gulp.task('serve', ['watch'], function() {
+    startBrowserSync(['.tmp', 'src', './' ]);
 });
 
-gulp.task('default', 'Watch files and build environment', ['serve']);
+gulp.task('default', ['serve']);
 
-gulp.task('serve:dist', 'Serve the prod environment', ['build'], function() {
+gulp.task('serve:dist', ['build'], function() {
     startBrowserSync([paths.build.dist.basePath]);
 });
 
-gulp.task('build', 'Build application for deployment', function (cb) {
+gulp.task('build', function (cb) {
     runSequence(
-        ['clean'],
+        'clean',
         ['compile', 'extras', 'images', 'fonts'],
         cb
     );
-}, {
-    options: {
-        'env=<environment>': 'environment flag (prod|dev|test)',
-        'cdn': 'replace local path with CDN url'
-    }
 });
 
-gulp.task('bump', 'Bump version number in package.json', ['jshint', 'htmlhint'], function () {
+gulp.task('bump', ['jshint', 'htmlhint'], function () {
     var HAS_REQUIRED_ATTRIBUTE = !!argv.type ? !!argv.type.match(new RegExp(/major|minor|patch/)) : false;
 
     if (!HAS_REQUIRED_ATTRIBUTE) {

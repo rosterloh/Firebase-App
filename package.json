@@ -13,13 +13,13 @@
     "gulp": "^3.8.11",
     "gulp-bump": "^0.2.2",
     "gulp-cache": "^0.2.8",
-    "gulp-cdnizer": "^1.1.4",
     "gulp-filter": "^2.0.2",
     "gulp-flatten": "0.0.4",
     "gulp-header": "^1.2.2",
     "gulp-htmlhint": "0.0.9",
     "gulp-if": "^1.2.5",
     "gulp-imagemin": "^2.2.1",
+    "gulp-inject": "^1.2.0",
     "gulp-jshint": "^1.9.2",
     "gulp-load-plugins": "^0.8.1",
     "gulp-minify-css": "^0.5.1",
@@ -31,10 +31,9 @@
     "gulp-usemin": "^0.3.11",
     "gulp-util": "^3.0.4",
     "jshint-stylish": "^1.0.1",
-    "pre-commit": "^1.0.5",
     "run-sequence": "^1.0.2",
     "semver": "^4.3.1",
-    "shelljs": "^0.2.6"
+    "shelljs": "^0.3.0"
   },
   "scripts": {
     "jshint": "gulp jshint",
@@ -42,12 +41,7 @@
     "david": "david",
     "postinstall": "bower install",
     "prestart": "npm install"
-  },
-  "pre-commit": [
-    "jshint",
-    "htmlhint",
-    "david"
-  ],
+  }
   "dependencies": {
     "express": "^4.12.2",
     "lodash": "^3.3.1",

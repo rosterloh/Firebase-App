@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="myApp" class="no-js">
+<html lang="en" ng-app="myApp">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,12 +10,37 @@
   <!-- build:css(.tmp) styles/main.min.css -->
   <link rel="stylesheet" type="text/css" href="vendor/angular-material/angular-material.css">
   <link rel="stylesheet" type="text/css" href="styles/app.css">
-  <link rel="stylesheet" type="text/css" href="styles/blog.css">
+  <!--<link rel="stylesheet" type="text/css" href="styles/blog.css">-->
   <!-- endbuild -->
 
 </head>
-<body>
-  <div ng-view></div>
+<body layout="column">
+  <md-toolbar layout="row">
+    <md-button class="menu" hide-gt-sm ng-click="$mdSidenav('left').toggle()" aria-label="Show User List">
+      <md-icon md-svg-icon="menu" ></md-icon>
+    </md-button>
+    <h1>Firebase App</h1>
+  </md-toolbar>
+
+  <div flex layout="row">
+
+    <md-sidenav md-is-locked-open="$mdMedia('gt-sm')" class="md-whiteframe-z2" md-component-id="left">
+      <md-list>
+        <md-item>
+          <md-button>
+            <md-icon md-svg-icon="svg-1" class="avatar"></md-icon>
+            Profile
+          </md-button>
+        </md-item>
+      </md-list>
+    </md-sidenav>
+
+    <md-content flex id="content">
+      <div ng-view></div>
+    </md-content>
+
+  </div>
+
 
   <!-- build:js assets/js/vendor.js -->
   <script src="vendor/angular/angular.js"></script>
